@@ -1,0 +1,16 @@
+import React from 'react'
+import { Switch, Route } from 'react-router-dom'
+
+import Home from './views/home/index'
+import CadastroProduto from './views/produtos/cadastro'
+import ConsultaProdutos from './views/produtos/consultaProdutos'
+
+export default () => {
+    return(
+        <Switch>
+            <Route exact path="/" component={Home} />
+            <Route exact path="/cadastro-produto/:sku?" component={CadastroProduto} />
+            <Route exact path="/consulta-produtos" component={ConsultaProdutos} />
+        </Switch>
+    );
+}
