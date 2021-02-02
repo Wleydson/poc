@@ -1,36 +1,37 @@
 import React, {Component} from 'react'
 import { withRouter } from 'react-router-dom'
 
-import ProdutoService from '../../app/produtoService'
+import ContratoService from '../../app/contratoService'
 import Card from '../../components/card'
 
 const init = {
-    nome: '',
-    sku: '',
+    id: '',
     descricao: '',
-    preco: 0,
-    fornecedor: '',
-    sucesso: false,
+    dataVigenciaInicial:  '',
+    dataVigenciaFinal:  '',
+    taxaComissao: '',
+    taxaDevolucao: '',
+    ativo: true,
     errors: [],
     atualizando: false
 }
 
-class CadastroProduto extends Component{
+class CadastroContrato extends Component{
     
     constructor(){
         super();
-        this.service = new ProdutoService();
+        this.service = new ContratoService();
     }
 
     state = init;
 
     componentDidMount(){
-        const sku = this.props.match.params.sku; 
-        if(sku){
-            const resultado = this.service.obterProdutos().filter( produto => produto.sku === sku );
+        const id = this.props.match.params.id; 
+        if(id){
+            const resultado = this.service.obtercontratos().filter( contrato => contrato.id === id );
             if(resultado.length === 1){
-                const produto = resultado[0];
-                this.setState({ ...produto, atualizando: true });
+                const contrato = resultado[0];
+                this.setState({ ...contrato, atualizando: true });
             }
         }
     }
@@ -38,29 +39,26 @@ class CadastroProduto extends Component{
     onChange = (event) =>{
         const value = event.target.value;
         const name = event.target.name;
-
         this.setState({ [name]: value });
     }
 
     onSubmit = (event) =>{
         event.preventDefault();
-        const produto = {
-            nome: this.state.nome,
-            sku: this.state.sku,
+        const contrato = {
+            id: this.state.id,
             descricao: this.state.descricao,
-            preco: this.state.preco,
-            fornecedor: this.state.fornecedor
+            dataVigenciaInicial: this.state.dataVigenciaInicial,
+            dataVigenciaFinal: this.state.dataVigenciaFinal,
+            taxaComissao: this.state.taxaComissao,
+            taxaDevolucao: this.state.taxaDevolucao
         };
         
         try{
-            this.service.save(produto);
+            this.service.save(contrato);
             this.limpaCampos(event);
             this.setState({ sucesso: true });
         }catch(erro){
-            console.log('erro')
-            console.log()
             const errors = erro.errors;
-            console.log(errors);
             this.setState({ errors: errors });
         }
         
@@ -75,15 +73,15 @@ class CadastroProduto extends Component{
         let state = this.state;
 
         return(
-            <div id='cadastro-produto'>
-                <Card header={state.atualizando ? 'Atualização de Produto' : 'Cadastro de Produto'}>
-                    <form id="form-produto" onSubmit={this.onSubmit}>
+            <div id='cadastro-contrato'>
+                <Card header={state.atualizando ? 'Atualização de Contrato' : 'Cadastro de Contrato'}>
+                    <form id="form-contrato" onSubmit={this.onSubmit}>
 
                         {
                              state.sucesso && (
                                 <div className="alert alert-dismissible alert-success">
                                     <button type="button" className="close" data-dismiss="alert">&times;</button>
-                                    <strong>Obrigado</strong> ficamos muito feliz com essa compra até a próxima !!
+                                    Contrato cadastrado
                                 </div>
                             )
                         }
@@ -103,28 +101,35 @@ class CadastroProduto extends Component{
                         }
 
                         <div className="row">
-                            <div className="col-md-6">
+                            <div className="col-md-2">
+                                <div className="form-group">
+                                    <label>ID: *</label>
+                                    <input value={state.id} name="id" onChange={this.onChange} 
+                                        type="text" className="form-control" />
+                                </div>
+                            </div>
+                            <div className="col-md-10">
                                 <div className="form-group">
                                     <label>Nome: *</label>
-                                    <input value={state.nome} name="nome" onChange={this.onChange} 
+                                    <input value={state.descricao} name="descricao" onChange={this.onChange} 
+                                        type="text" className="form-control" />
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className="row">
+                            <div className="col-md-6">
+                                <div className="form-group">
+                                    <label>Data Inicial: *</label>
+                                    <input value={state.dataVigenciaInicial} name="dataVigenciaInicial" onChange={this.onChange} 
                                         type="text" className="form-control" />
                                 </div>
                             </div>
                             <div className="col-md-6">
                                 <div className="form-group">
-                                    <label>SKU: *</label>
-                                    <input value={state.sku} name="sku" onChange={this.onChange} 
-                                        type="text" className="form-control" disabled={state.atualizando}/>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div className="row">
-                            <div className="col-md-12">
-                                <div className="form-group">
-                                    <label>Descrição: </label>
-                                    <textarea value={state.descricao} name="descricao"
-                                        onChange={this.onChange} className="form-control"/>
+                                    <label>Data Final: *</label>
+                                    <input value={state.dataVigenciaFinal} name="dataVigenciaFinal" onChange={this.onChange} 
+                                        type="text" className="form-control" />
                                 </div>
                             </div>
                         </div>
@@ -132,16 +137,15 @@ class CadastroProduto extends Component{
                         <div className="row">
                             <div className="col-md-6">
                                 <div className="form-group">
-                                    <label>Preço: *</label>
-                                    <input value={state.preco} name="preco" onChange={this.onChange} 
-                                        type="number" className="form-control" />
+                                    <label>Taxa Comissão: *</label>
+                                    <input value={state.taxaComissao} name="taxaComissao" onChange={this.onChange} 
+                                        type="text" className="form-control" />
                                 </div>
                             </div>
-
                             <div className="col-md-6">
                                 <div className="form-group">
-                                    <label>Fornecedor: *</label>
-                                    <input value={state.fornecedor} name="fornecedor" onChange={this.onChange}
+                                    <label>Taxa devolução:</label>
+                                    <input value={state.taxaDevolucao} name="taxaDevolucao" onChange={this.onChange} 
                                         type="text" className="form-control" />
                                 </div>
                             </div>
@@ -166,4 +170,4 @@ class CadastroProduto extends Component{
     }
 }
 
-export default withRouter(CadastroProduto);
+export default withRouter(CadastroContrato);
